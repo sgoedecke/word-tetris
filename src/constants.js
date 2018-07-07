@@ -1,4 +1,4 @@
-export const GAME_HEIGHT = 5
+export const GAME_HEIGHT = 10 
 
-export const GAME_WIDTH = 3
+export const GAME_WIDTH = 20 
 
