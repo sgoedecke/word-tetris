@@ -2,9 +2,11 @@ import React from 'react';
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 console.log(GAME_HEIGHT, GAME_WIDTH)
 
-const Tile = ({ letter }) => {
+const Tile = ({ letters, x, y}) => {
+  const letter = letters.find((l) => (l.x == x && l.y == y))
+  const active = letters.indexOf(letter) == letters.length - 1
   if (letter) {
-    return(<div className={letter.active ? "activeTile" : undefined}>{ letter.char }</div>)
+    return(<div className={active ? "activeTile" : undefined}>{ letter.char }</div>)
   } else {
     return(<div> </div>)
   }
@@ -21,7 +23,7 @@ const LetterGrid = ({ letters }) => {
               {
                 [...Array(GAME_WIDTH)].map((_, wi) => (
                   <td key={wi}>
-                    { <Tile letter={letters.find((l) => (l.x == wi && l.y == hi))} /> }
+                    { <Tile letters={letters} x={wi} y={hi} /> }
                   </td>
                 ))
               }

@@ -1,11 +1,12 @@
 import React from 'react';
 import LetterGrid from './LetterGrid';
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
+import checkForWords from './wordcheck';
 
 class WordTetris extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { letters: [] }
+    this.state = { letters: [], foundWords: [], gameOver: false }
   }
 
   componentDidMount() {
@@ -26,10 +27,10 @@ class WordTetris extends React.Component {
 
     if (event.keyCode == '37') {
       // left arrow
-     if (lastLetter.active && lastLetter.x > 0) { lastLetter.x-- }
+      if (lastLetter.x > 0) { lastLetter.x-- }
     } else if (event.keyCode == '39') {
       // right arrow
-     if (lastLetter.active && lastLetter.x < GAME_WIDTH - 1) { lastLetter.x++ }
+      if (lastLetter.x < GAME_WIDTH - 1) { lastLetter.x++ }
     }
     if (oldLetters.slice(0, oldLetters.length - 1).find((l) => (l.x == lastLetter.x && l.y == lastLetter.y))) {
       return
@@ -47,31 +48,41 @@ class WordTetris extends React.Component {
     return Math.floor(Math.random() * len)
   }
 
+  checkForWords() {
+    const letters = JSON.parse(JSON.stringify(this.state.letters))
+    let result = checkForWords(letters)
+    if (!result) { return }
+    if (result.foundWord) {
+      this.setState({
+        letters: result.newLetters,
+        foundWords: [...this.state.foundWords, result.foundWord]
+      })
+    }
+  }
+
   moveLetters() {
-    const newLetters = this.state.letters.map((letter) => {
+    let letterReleased = false
+    const letters = JSON.parse(JSON.stringify(this.state.letters))
+    const newLetters = letters.map((letter) => {
       const hasLetterBelow = this.state.letters.find((l) => (l.x == letter.x && l.y == letter.y + 1))
       const isAtBottom = letter.y >= GAME_HEIGHT - 1
       if (isAtBottom || hasLetterBelow) {
-        if (letter.active) {
-          return {
-            char: letter.char,
-            x: letter.x,
-            y: letter.y,
-            active: false
-          }
-        } else {
-          return letter
-        }
+        if (letters.indexOf(letter) == letters.length - 1) {
+          letterReleased = letter
+        } 
+        return letter
       } else {
         return {
           char: letter.char,
           x: letter.x,
           y: letter.y + 1,
-          active: letter.active
         }
       }
     })
     this.setState({ letters: newLetters })
+    if (letterReleased) {
+      this.checkForWords() // only check for new words when you put a letter down
+    }
   }
 
   addLetter() {
@@ -79,11 +90,10 @@ class WordTetris extends React.Component {
       char: this.randLetter(),
       x: this.randNumber(GAME_WIDTH),
       y: 0,
-      active: true
     }
 
     if (this.state.letters.find(l => (l.x == newLetter.x && l.y == newLetter.y))) {
-      alert('you lost!')
+      this.setState({ gameOver: true})
       window.clearInterval(this.moveLettersInterval)
       window.clearInterval(this.addLetterInterval)
     }
@@ -92,7 +102,15 @@ class WordTetris extends React.Component {
 
   render() {
     return(
-      <LetterGrid letters={this.state.letters} />
+      <div>
+        { this.state.gameOver && <div>Game over!</div> }
+        <LetterGrid letters={this.state.letters} />
+        { 
+          this.state.foundWords.map((w, i) => (
+            <div key={i}>{ w }</div>
+          ))
+        }
+      </div>
     )
   }
 }

@@ -20348,6 +20348,10 @@
 
 	var _constants = __webpack_require__(27);
 
+	var _wordcheck = __webpack_require__(28);
+
+	var _wordcheck2 = _interopRequireDefault(_wordcheck);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -20366,7 +20370,7 @@
 
 	    var _this = _possibleConstructorReturn(this, (WordTetris.__proto__ || Object.getPrototypeOf(WordTetris)).call(this, props));
 
-	    _this.state = { letters: [] };
+	    _this.state = { letters: [], foundWords: [], gameOver: false };
 	    return _this;
 	  }
 
@@ -20392,12 +20396,12 @@
 
 	      if (event.keyCode == '37') {
 	        // left arrow
-	        if (lastLetter.active && lastLetter.x > 0) {
+	        if (lastLetter.x > 0) {
 	          lastLetter.x--;
 	        }
 	      } else if (event.keyCode == '39') {
 	        // right arrow
-	        if (lastLetter.active && lastLetter.x < _constants.GAME_WIDTH - 1) {
+	        if (lastLetter.x < _constants.GAME_WIDTH - 1) {
 	          lastLetter.x++;
 	        }
 	      }
@@ -20421,36 +20425,49 @@
 	      return Math.floor(Math.random() * len);
 	    }
 	  }, {
+	    key: 'checkForWords',
+	    value: function checkForWords() {
+	      var letters = JSON.parse(JSON.stringify(this.state.letters));
+	      var result = (0, _wordcheck2.default)(letters);
+	      if (!result) {
+	        return;
+	      }
+	      if (result.foundWord) {
+	        this.setState({
+	          letters: result.newLetters,
+	          foundWords: [].concat(_toConsumableArray(this.state.foundWords), [result.foundWord])
+	        });
+	      }
+	    }
+	  }, {
 	    key: 'moveLetters',
 	    value: function moveLetters() {
 	      var _this2 = this;
 
-	      var newLetters = this.state.letters.map(function (letter) {
+	      var letterReleased = false;
+	      var letters = JSON.parse(JSON.stringify(this.state.letters));
+	      var newLetters = letters.map(function (letter) {
 	        var hasLetterBelow = _this2.state.letters.find(function (l) {
 	          return l.x == letter.x && l.y == letter.y + 1;
 	        });
 	        var isAtBottom = letter.y >= _constants.GAME_HEIGHT - 1;
 	        if (isAtBottom || hasLetterBelow) {
-	          if (letter.active) {
-	            return {
-	              char: letter.char,
-	              x: letter.x,
-	              y: letter.y,
-	              active: false
-	            };
-	          } else {
-	            return letter;
+	          if (letters.indexOf(letter) == letters.length - 1) {
+	            letterReleased = letter;
 	          }
+	          return letter;
 	        } else {
 	          return {
 	            char: letter.char,
 	            x: letter.x,
-	            y: letter.y + 1,
-	            active: letter.active
+	            y: letter.y + 1
 	          };
 	        }
 	      });
 	      this.setState({ letters: newLetters });
+	      if (letterReleased) {
+	        this.checkForWords(); // only check for new words when you put a letter down
+	      }
 	    }
 	  }, {
 	    key: 'addLetter',
@@ -20458,14 +20475,13 @@
 	      var newLetter = {
 	        char: this.randLetter(),
 	        x: this.randNumber(_constants.GAME_WIDTH),
-	        y: 0,
-	        active: true
+	        y: 0
 	      };
 
 	      if (this.state.letters.find(function (l) {
 	        return l.x == newLetter.x && l.y == newLetter.y;
 	      })) {
-	        alert('you lost!');
+	        this.setState({ gameOver: true });
 	        window.clearInterval(this.moveLettersInterval);
 	        window.clearInterval(this.addLetterInterval);
 	      }
@@ -20476,7 +20492,23 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(_LetterGrid2.default, { letters: this.state.letters });
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        this.state.gameOver && _react2.default.createElement(
+	          'div',
+	          null,
+	          'Game over!'
+	        ),
+	        _react2.default.createElement(_LetterGrid2.default, { letters: this.state.letters }),
+	        this.state.foundWords.map(function (w, i) {
+	          return _react2.default.createElement(
+	            'div',
+	            { key: i },
+	            w
+	          );
+	        })
+	      );
 	    }
 	  }]);
 
@@ -20508,12 +20540,18 @@
 	console.log(_constants.GAME_HEIGHT, _constants.GAME_WIDTH);
 
 	var Tile = function Tile(_ref) {
-	  var letter = _ref.letter;
+	  var letters = _ref.letters,
+	      x = _ref.x,
+	      y = _ref.y;
 
+	  var letter = letters.find(function (l) {
+	    return l.x == x && l.y == y;
+	  });
+	  var active = letters.indexOf(letter) == letters.length - 1;
 	  if (letter) {
 	    return _react2.default.createElement(
 	      'div',
-	      { className: letter.active ? "activeTile" : undefined },
+	      { className: active ? "activeTile" : undefined },
 	      letter.char
 	    );
 	  } else {
@@ -20545,9 +20583,7 @@
 	              return _react2.default.createElement(
 	                'td',
 	                { key: wi },
-	                _react2.default.createElement(Tile, { letter: letters.find(function (l) {
-	                    return l.x == wi && l.y == hi;
-	                  }) })
+	                _react2.default.createElement(Tile, { letters: letters, x: wi, y: hi })
 	              );
 	            })
 	          );
@@ -20571,6 +20607,89 @@
 	var GAME_HEIGHT = exports.GAME_HEIGHT = 5;
 
 	var GAME_WIDTH = exports.GAME_WIDTH = 3;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var isAWord = function isAWord(word) {
+	  return true;
+	};
+
+	var checkForWords = function checkForWords(letters) {
+	  var activeLetter = letters[letters.length - 1];
+	  if (!activeLetter) {
+	    return;
+	  }
+
+	  // find all possible >3 letterwords nearby the active letter
+	  var horizontalLetters = letters.filter(function (l) {
+	    return l.y == activeLetter.y;
+	  }).sort(function (a, b) {
+	    return a.x - b.x;
+	  });
+	  var verticalLetters = letters.filter(function (l) {
+	    return l.x == activeLetter.x;
+	  }).sort(function (a, b) {
+	    return a.y - b.y;
+	  });
+
+	  for (var i = 0; i < horizontalLetters.length; i++) {
+	    var slice = horizontalLetters.slice(i, i + 3);
+	    if (slice.length < 3) {
+	      continue;
+	    }
+	    var potentialWord = slice.map(function (l) {
+	      return l.char;
+	    }).join('');
+
+	    if (isAWord(potentialWord)) {
+	      // remove letters from array
+	      slice.forEach(function (l) {
+	        var index = letters.indexOf(l);
+	        letters.splice(index, 1);
+	      });
+	      return {
+	        newLetters: letters,
+	        foundWord: potentialWord
+	      };
+	    }
+	  }
+
+	  for (var _i = 0; _i < verticalLetters.length; _i++) {
+	    var _slice = verticalLetters.slice(_i, _i + 3);
+	    if (_slice.length < 3) {
+	      continue;
+	    }
+	    var _potentialWord = _slice.map(function (l) {
+	      return l.char;
+	    }).join('');
+
+	    if (isAWord(_potentialWord)) {
+	      // remove letters from array
+	      _slice.forEach(function (l) {
+	        var index = letters.indexOf(l);
+	        letters.splice(index, 1);
+	      });
+	      return {
+	        newLetters: letters,
+	        foundWord: _potentialWord
+	      };
+	    }
+	  }
+
+	  return {
+	    newLetters: [],
+	    foundWord: null
+	  };
+	};
+
+	exports.default = checkForWords;
 
 /***/ })
 /******/ ]);
