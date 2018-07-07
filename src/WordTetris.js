@@ -2,6 +2,7 @@ import React from 'react';
 import LetterGrid from './LetterGrid';
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 import checkForWords from './wordcheck';
+import FoundWords from './FoundWords'
 
 class WordTetris extends React.Component {
   constructor(props) {
@@ -20,6 +21,7 @@ class WordTetris extends React.Component {
   }
 
   handleKeys(event) {
+    if (this.state.gameOver) { return }
     const oldLetters = JSON.parse(JSON.stringify(this.state.letters))
     const lastLetter = oldLetters[oldLetters.length - 1]
 
@@ -64,6 +66,7 @@ class WordTetris extends React.Component {
   }
 
   moveLetters() {
+    if (this.state.gameOver) { return }
     let letterReleased = false
     const letters = JSON.parse(JSON.stringify(this.state.letters))
     const newLetters = letters.map((letter) => {
@@ -99,7 +102,6 @@ class WordTetris extends React.Component {
     if (this.state.letters.find(l => (l.x == newLetter.x && l.y == newLetter.y))) {
       this.setState({ gameOver: true})
       window.clearInterval(this.moveLettersInterval)
-      window.clearInterval(this.addLetterInterval)
     }
     this.setState((prevState) => ({ letters: [...prevState.letters, newLetter] }))
   }
@@ -107,14 +109,13 @@ class WordTetris extends React.Component {
   render() {
     return(
       <div>
-        { this.state.gameOver && <div>Game over!</div> }
+        Word Tetris ({ this.state.foundWords.length } words made)
+      <div className='wordTetris'>
+        { this.state.gameOver && <div className='gameOverModal'>Game over!</div> }
         <LetterGrid letters={this.state.letters} />
-        { 
-          this.state.foundWords.map((w, i) => (
-            <div key={i}>{ w }</div>
-          ))
-        }
+        <FoundWords words={this.state.foundWords} />
       </div>
+    </div>
     )
   }
 }

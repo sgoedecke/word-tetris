@@ -2,6 +2,10 @@ div {
   font-family: 'Montserrat', sans-serif;
 }
 
+body {
+  margin: 20px;
+}
+
 td {
   height: 40;
   width: 40;
@@ -18,4 +22,31 @@ td {
 
 .letterTile {
   border: 1px solid black;
+}
+
+.gameOverModal {
+  position: fixed;
+  background-color: #f4f5f7;
+  border: 1px solid red;
+  border-radius: 3px;
+  position: absolute;
+  padding: 20px;
+  top: 100px;
+  left: 90px;
+}
+
+.foundWords {
+  margin-left: 20px;
+  width: 100px;
+}
+
+.foundWords td {
+  border: none;
+  padding: 5px;
+  height: 10px;
+}
+
+.wordTetris {
+  display: flex;
+  margin-top: 10px;
 }

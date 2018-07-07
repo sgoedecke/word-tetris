@@ -2,4 +2,12 @@
 
 Tetris with words. Instead of removing blocks by forming lines, remove blocks by forming words.
 
+![screenshot](screenshots/tetris.png)
+
 Play it [here](https://sgoedecke.github.io/word-tetris/index.html).
+
+## Todo
+
+* Better word list: more words, more common words
+* More efficient rendering algorithm. Two passes, not as many passes as letters
+* When you form a word, you get a destruction block with a :fire: emoji on it
