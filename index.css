@@ -6,13 +6,16 @@ td {
   height: 40;
   width: 40;
   font-size: 12pt;
-  border: 1px solid black;
-}
-
-td div {
+  border: 1px solid lightgrey;
   text-align: center;
 }
 
 .activeTile {
-  color: red;
+  background-color: darkgrey;
+  color: white;
+  border: 1px solid black;
+}
+
+.letterTile {
+  border: 1px solid black;
 }

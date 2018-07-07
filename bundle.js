@@ -20379,14 +20379,12 @@
 	    value: function componentDidMount() {
 	      this.addLetter();
 	      this.moveLettersInterval = window.setInterval(this.moveLetters.bind(this), 1000);
-	      this.addLetterInterval = window.setInterval(this.addLetter.bind(this), 5000);
 	      document.addEventListener('keydown', this.handleKeys.bind(this));
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
 	      window.clearInterval(this.moveLettersInterval);
-	      window.clearInterval(this.addLetterInterval);
 	    }
 	  }, {
 	    key: 'handleKeys',
@@ -20403,6 +20401,15 @@
 	        // right arrow
 	        if (lastLetter.x < _constants.GAME_WIDTH - 1) {
 	          lastLetter.x++;
+	        }
+	      } else if (event.keyCode == '40') {
+	        // down arrow
+	        var hasLetterBelow = oldLetters.find(function (l) {
+	          return l.x == lastLetter.x && l.y == lastLetter.y + 1;
+	        });
+	        var isAtBottom = lastLetter.y >= _constants.GAME_HEIGHT - 1;
+	        if (!hasLetterBelow && !isAtBottom) {
+	          lastLetter.y++;
 	        }
 	      }
 	      if (oldLetters.slice(0, oldLetters.length - 1).find(function (l) {
@@ -20467,6 +20474,7 @@
 	      this.setState({ letters: newLetters });
 	      if (letterReleased) {
 	        this.checkForWords(); // only check for new words when you put a letter down
+	        this.addLetter();
 	      }
 	    }
 	  }, {
@@ -20550,13 +20558,13 @@
 	  var active = letters.indexOf(letter) == letters.length - 1;
 	  if (letter) {
 	    return _react2.default.createElement(
-	      'div',
-	      { className: active ? "activeTile" : undefined },
+	      'td',
+	      { className: active ? "activeTile" : "letterTile" },
 	      letter.char
 	    );
 	  } else {
 	    return _react2.default.createElement(
-	      'div',
+	      'td',
 	      null,
 	      ' '
 	    );
@@ -20580,11 +20588,7 @@
 	            'tr',
 	            { key: hi },
 	            [].concat(_toConsumableArray(Array(_constants.GAME_WIDTH))).map(function (_, wi) {
-	              return _react2.default.createElement(
-	                'td',
-	                { key: wi },
-	                _react2.default.createElement(Tile, { letters: letters, x: wi, y: hi })
-	              );
+	              return _react2.default.createElement(Tile, { key: wi, letters: letters, x: wi, y: hi });
 	            })
 	          );
 	        })
@@ -20604,9 +20608,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var GAME_HEIGHT = exports.GAME_HEIGHT = 10;
+	var GAME_HEIGHT = exports.GAME_HEIGHT = 9;
 
-	var GAME_WIDTH = exports.GAME_WIDTH = 20;
+	var GAME_WIDTH = exports.GAME_WIDTH = 6;
 
 /***/ }),
 /* 28 */

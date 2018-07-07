@@ -12,13 +12,11 @@ class WordTetris extends React.Component {
   componentDidMount() {
     this.addLetter()
     this.moveLettersInterval = window.setInterval(this.moveLetters.bind(this), 1000)
-    this.addLetterInterval = window.setInterval(this.addLetter.bind(this), 5000)
     document.addEventListener('keydown', this.handleKeys.bind(this))
   }
 
   componentWillUnmount() {
     window.clearInterval(this.moveLettersInterval)
-    window.clearInterval(this.addLetterInterval)
   }
 
   handleKeys(event) {
@@ -31,6 +29,11 @@ class WordTetris extends React.Component {
     } else if (event.keyCode == '39') {
       // right arrow
       if (lastLetter.x < GAME_WIDTH - 1) { lastLetter.x++ }
+    } else if (event.keyCode == '40') {
+      // down arrow
+      const hasLetterBelow = oldLetters.find((l) => (l.x == lastLetter.x && l.y == lastLetter.y + 1))
+      const isAtBottom = lastLetter.y >= GAME_HEIGHT - 1
+      if (!hasLetterBelow && !isAtBottom) { lastLetter.y++ }
     }
     if (oldLetters.slice(0, oldLetters.length - 1).find((l) => (l.x == lastLetter.x && l.y == lastLetter.y))) {
       return
@@ -82,6 +85,7 @@ class WordTetris extends React.Component {
     this.setState({ letters: newLetters })
     if (letterReleased) {
       this.checkForWords() // only check for new words when you put a letter down
+      this.addLetter()
     }
   }
 
