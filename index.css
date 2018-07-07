@@ -1,0 +1,18 @@
+div {
+  font-family: 'Montserrat', sans-serif;
+}
+
+td {
+  height: 40;
+  width: 40;
+  font-size: 12pt;
+  border: 1px solid black;
+}
+
+td div {
+  text-align: center;
+}
+
+.activeTile {
+  color: red;
+}
