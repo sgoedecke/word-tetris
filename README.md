@@ -10,4 +10,3 @@ Play it [here](https://sgoedecke.github.io/word-tetris/index.html).
 
 * Better word list: more words, more common words
 * More efficient rendering algorithm. Two passes, not as many passes as letters
-* When you form a word, you get a destruction block with a :fire: emoji on it

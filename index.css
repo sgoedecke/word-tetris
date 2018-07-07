@@ -24,6 +24,10 @@ td {
   border: 1px solid black;
 }
 
+.bombTile {
+  border: 1px solid red;
+}
+
 .gameOverModal {
   position: fixed;
   background-color: #f4f5f7;

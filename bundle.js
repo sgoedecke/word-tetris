@@ -20431,13 +20431,14 @@
 	      var letters = JSON.parse(JSON.stringify(this.state.letters));
 	      var result = (0, _wordcheck2.default)(letters);
 	      if (!result) {
-	        return;
+	        return false;
 	      }
 	      if (result.foundWord) {
 	        this.setState({
 	          letters: result.newLetters,
 	          foundWords: [].concat(_toConsumableArray(this.state.foundWords), [result.foundWord])
 	        });
+	        return true;
 	      }
 	    }
 	  }, {
@@ -20470,8 +20471,18 @@
 	      });
 	      this.setState({ letters: newLetters });
 	      if (letterReleased) {
-	        this.checkForWords(); // only check for new words when you put a letter down
-	        this.addLetter();
+	        if (letterReleased.char == '!') {
+	          // letter is bomb
+	          this.detonateBomb(letterReleased);
+	          this.addLetter();
+	        } else {
+	          if (this.checkForWords()) {
+	            // only check for new words when you put a letter down
+	            this.addBomb();
+	          } else {
+	            this.addLetter();
+	          }
+	        }
 	      }
 	    }
 	  }, {
@@ -20489,9 +20500,25 @@
 	        this.setState({ gameOver: true });
 	        window.clearInterval(this.moveLettersInterval);
 	      }
-	      this.setState(function (prevState) {
-	        return { letters: [].concat(_toConsumableArray(prevState.letters), [newLetter]) };
+	      this.setState({ letters: [].concat(_toConsumableArray(this.state.letters), [newLetter]) });
+	    }
+	  }, {
+	    key: 'addBomb',
+	    value: function addBomb() {
+	      this.setState({ letters: [].concat(_toConsumableArray(this.state.letters), [{ char: '!', x: this.randNumber(_constants.GAME_WIDTH), y: 0 }]) });
+	    }
+	  }, {
+	    key: 'detonateBomb',
+	    value: function detonateBomb(bomb) {
+	      var newLetters = JSON.parse(JSON.stringify(this.state.letters));
+	      var victims = newLetters.filter(function (l) {
+	        return Math.abs(l.x - bomb.x) < 3 && Math.abs(l.y - bomb.y) < 3;
 	      });
+
+	      victims.forEach(function (l) {
+	        newLetters.splice(newLetters.indexOf(l), 1);
+	      });
+	      this.setState({ letters: newLetters });
 	    }
 	  }, {
 	    key: 'render',
@@ -20553,7 +20580,13 @@
 	    return l.x == x && l.y == y;
 	  });
 	  var active = letters.indexOf(letter) == letters.length - 1;
-	  if (letter) {
+	  if (letter && letter.char == '!') {
+	    return _react2.default.createElement(
+	      'td',
+	      { className: "bombTile" },
+	      '\uD83D\uDD25'
+	    );
+	  } else if (letter) {
 	    return _react2.default.createElement(
 	      'td',
 	      { className: active ? "activeTile" : "letterTile" },

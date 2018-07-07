@@ -5,7 +5,9 @@ console.log(GAME_HEIGHT, GAME_WIDTH)
 const Tile = ({ letters, x, y}) => {
   const letter = letters.find((l) => (l.x == x && l.y == y))
   const active = letters.indexOf(letter) == letters.length - 1
-  if (letter) {
+  if (letter && letter.char == '!') {
+    return(<td className={"bombTile"}>🔥</td>)
+  } else if (letter) {
     return(<td className={active ? "activeTile" : "letterTile"}>{ letter.char }</td>)
   } else {
     return(<td> </td>)

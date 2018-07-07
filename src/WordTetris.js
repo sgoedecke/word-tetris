@@ -56,12 +56,13 @@ class WordTetris extends React.Component {
   checkForWords() {
     const letters = JSON.parse(JSON.stringify(this.state.letters))
     let result = checkForWords(letters)
-    if (!result) { return }
+    if (!result) { return false }
     if (result.foundWord) {
       this.setState({
         letters: result.newLetters,
         foundWords: [...this.state.foundWords, result.foundWord]
       })
+      return true
     }
   }
 
@@ -87,8 +88,16 @@ class WordTetris extends React.Component {
     })
     this.setState({ letters: newLetters })
     if (letterReleased) {
-      this.checkForWords() // only check for new words when you put a letter down
-      this.addLetter()
+      if (letterReleased.char == '!') { // letter is bomb
+        this.detonateBomb(letterReleased)
+        this.addLetter()
+      } else {
+        if (this.checkForWords()) { // only check for new words when you put a letter down
+          this.addBomb()
+        } else {
+          this.addLetter()
+        }
+      }
     }
   }
 
@@ -103,7 +112,21 @@ class WordTetris extends React.Component {
       this.setState({ gameOver: true})
       window.clearInterval(this.moveLettersInterval)
     }
-    this.setState((prevState) => ({ letters: [...prevState.letters, newLetter] }))
+    this.setState({ letters: [...this.state.letters, newLetter] })
+  }
+
+  addBomb() {
+    this.setState({ letters: [...this.state.letters, { char: '!', x: this.randNumber(GAME_WIDTH), y: 0 }] });
+  }
+
+  detonateBomb(bomb) {
+    const newLetters = JSON.parse(JSON.stringify(this.state.letters))
+    const victims = newLetters.filter(l => (Math.abs(l.x - bomb.x) < 3 && Math.abs(l.y - bomb.y) < 3))
+
+    victims.forEach(l => {
+      newLetters.splice(newLetters.indexOf(l), 1)
+    })
+    this.setState({ letters: newLetters })
   }
 
   render() {
