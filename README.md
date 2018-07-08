@@ -13,3 +13,4 @@ Play it [here](https://sgoedecke.github.io/word-tetris/index.html).
 * Look for longer words first so 'VEND' doesn't score as 'END'
 * Find a way to respect empty blocks when forming words
 * More efficient rendering algorithm. Two passes, not as many passes as letters
+* Animate explosions and maybe falling blocks

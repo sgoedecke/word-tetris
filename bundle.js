@@ -20361,7 +20361,7 @@
 
 	    var _this = _possibleConstructorReturn(this, (WordTetris.__proto__ || Object.getPrototypeOf(WordTetris)).call(this, props));
 
-	    _this.state = { letters: [], foundWords: [], gameOver: false };
+	    _this.state = { letters: [], foundWords: [], animations: [], gameOver: false };
 	    return _this;
 	  }
 
@@ -20442,6 +20442,27 @@
 	      }
 	    }
 	  }, {
+	    key: 'addExplosionAnimation',
+	    value: function addExplosionAnimation(x, y) {
+	      var explosionSize = 3;
+	      var explosionTiles = [];
+	      for (var i = -1; i < 2; i++) {
+	        for (var j = -1; j < 2; j++) {
+	          explosionTiles.push({
+	            x: x + i,
+	            y: y + j,
+	            type: "bomb"
+	          });
+	        }
+	      }
+	      this.setState({ animations: explosionTiles });
+	    }
+	  }, {
+	    key: 'clearAnimations',
+	    value: function clearAnimations() {
+	      this.setState({ animations: [] });
+	    }
+	  }, {
 	    key: 'moveLetters',
 	    value: function moveLetters() {
 	      var _this2 = this;
@@ -20449,6 +20470,8 @@
 	      if (this.state.gameOver) {
 	        return;
 	      }
+	      this.clearAnimations(); // clear animations first
+
 	      var letterReleased = false;
 	      var letters = JSON.parse(JSON.stringify(this.state.letters));
 	      var newLetters = letters.map(function (letter) {
@@ -20457,11 +20480,13 @@
 	        });
 	        var isAtBottom = letter.y >= _constants.GAME_HEIGHT - 1;
 	        if (isAtBottom || hasLetterBelow) {
+	          // don't move letter
 	          if (letters.indexOf(letter) == letters.length - 1) {
 	            letterReleased = letter;
 	          }
 	          return letter;
 	        } else {
+	          // move letter
 	          return {
 	            char: letter.char,
 	            x: letter.x,
@@ -20470,6 +20495,8 @@
 	        }
 	      });
 	      this.setState({ letters: newLetters });
+
+	      // check if a letter was put down and handle consequences
 	      if (letterReleased) {
 	        if (letterReleased.char == '!') {
 	          // letter is bomb
@@ -20512,12 +20539,14 @@
 	    value: function detonateBomb(bomb) {
 	      var newLetters = JSON.parse(JSON.stringify(this.state.letters));
 	      var victims = newLetters.filter(function (l) {
-	        return Math.abs(l.x - bomb.x) < 3 && Math.abs(l.y - bomb.y) < 3;
+	        return Math.abs(l.x - bomb.x) < 2 && Math.abs(l.y - bomb.y) < 2;
 	      });
 
 	      victims.forEach(function (l) {
 	        newLetters.splice(newLetters.indexOf(l), 1);
 	      });
+
+	      this.addExplosionAnimation(bomb.x, bomb.y);
 	      this.setState({ letters: newLetters });
 	    }
 	  }, {
@@ -20537,7 +20566,7 @@
 	            { className: 'gameOverModal' },
 	            'Game over!'
 	          ),
-	          _react2.default.createElement(_LetterGrid2.default, { letters: this.state.letters }),
+	          _react2.default.createElement(_LetterGrid2.default, { letters: this.state.letters, animations: this.state.animations }),
 	          _react2.default.createElement(_FoundWords2.default, { words: this.state.foundWords })
 	        )
 	      );
@@ -20569,17 +20598,18 @@
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	console.log(_constants.GAME_HEIGHT, _constants.GAME_WIDTH);
-
 	var Tile = function Tile(_ref) {
 	  var letters = _ref.letters,
 	      x = _ref.x,
-	      y = _ref.y;
+	      y = _ref.y,
+	      animation = _ref.animation;
 
 	  var letter = letters.find(function (l) {
 	    return l.x == x && l.y == y;
 	  });
 	  var active = letters.indexOf(letter) == letters.length - 1;
+	  var animationType = animation ? animation.type : undefined;
+
 	  if (letter && letter.char == '!') {
 	    return _react2.default.createElement(
 	      'td',
@@ -20595,14 +20625,15 @@
 	  } else {
 	    return _react2.default.createElement(
 	      'td',
-	      null,
+	      { className: animationType },
 	      ' '
 	    );
 	  }
 	};
 
 	var LetterGrid = function LetterGrid(_ref2) {
-	  var letters = _ref2.letters;
+	  var letters = _ref2.letters,
+	      animations = _ref2.animations;
 
 	  return _react2.default.createElement(
 	    'div',
@@ -20618,7 +20649,9 @@
 	            'tr',
 	            { key: hi },
 	            [].concat(_toConsumableArray(Array(_constants.GAME_WIDTH))).map(function (_, wi) {
-	              return _react2.default.createElement(Tile, { key: wi, letters: letters, x: wi, y: hi });
+	              return _react2.default.createElement(Tile, { key: wi, letters: letters, x: wi, y: hi, animation: animations.find(function (i) {
+	                  return i.x == wi && i.y == hi;
+	                }) });
 	            })
 	          );
 	        })
@@ -20659,6 +20692,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var isAWord = function isAWord(word) {
+	  return true;
 	  return _words2.default.indexOf(word.toLowerCase()) != -1;
 	};
 

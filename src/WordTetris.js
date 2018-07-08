@@ -7,7 +7,7 @@ import FoundWords from './FoundWords'
 class WordTetris extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { letters: [], foundWords: [], gameOver: false }
+    this.state = { letters: [], foundWords: [], animations: [], gameOver: false }
   }
 
   componentDidMount() {
@@ -66,19 +66,40 @@ class WordTetris extends React.Component {
     }
   }
 
+  addExplosionAnimation(x, y) {
+    const explosionSize = 3
+    const explosionTiles = []
+    for(let i = -1; i < 2; i++) {
+      for(let j = -1; j < 2; j++) {
+        explosionTiles.push({
+          x: x+i,
+          y: y+j,
+          type: "bomb"
+        })
+      }
+    }
+    this.setState({ animations: explosionTiles })
+  }
+
+  clearAnimations() {
+    this.setState({ animations: [] })
+  }
+
   moveLetters() {
     if (this.state.gameOver) { return }
+    this.clearAnimations() // clear animations first
+
     let letterReleased = false
     const letters = JSON.parse(JSON.stringify(this.state.letters))
     const newLetters = letters.map((letter) => {
       const hasLetterBelow = this.state.letters.find((l) => (l.x == letter.x && l.y == letter.y + 1))
       const isAtBottom = letter.y >= GAME_HEIGHT - 1
-      if (isAtBottom || hasLetterBelow) {
+      if (isAtBottom || hasLetterBelow) { // don't move letter
         if (letters.indexOf(letter) == letters.length - 1) {
           letterReleased = letter
         } 
         return letter
-      } else {
+      } else { // move letter
         return {
           char: letter.char,
           x: letter.x,
@@ -87,6 +108,8 @@ class WordTetris extends React.Component {
       }
     })
     this.setState({ letters: newLetters })
+
+    // check if a letter was put down and handle consequences
     if (letterReleased) {
       if (letterReleased.char == '!') { // letter is bomb
         this.detonateBomb(letterReleased)
@@ -121,11 +144,13 @@ class WordTetris extends React.Component {
 
   detonateBomb(bomb) {
     const newLetters = JSON.parse(JSON.stringify(this.state.letters))
-    const victims = newLetters.filter(l => (Math.abs(l.x - bomb.x) < 3 && Math.abs(l.y - bomb.y) < 3))
+    const victims = newLetters.filter(l => (Math.abs(l.x - bomb.x) < 2 && Math.abs(l.y - bomb.y) < 2))
 
     victims.forEach(l => {
       newLetters.splice(newLetters.indexOf(l), 1)
     })
+
+    this.addExplosionAnimation(bomb.x, bomb.y)
     this.setState({ letters: newLetters })
   }
 
@@ -135,7 +160,7 @@ class WordTetris extends React.Component {
         Word Tetris ({ this.state.foundWords.length } words made)
       <div className='wordTetris'>
         { this.state.gameOver && <div className='gameOverModal'>Game over!</div> }
-        <LetterGrid letters={this.state.letters} />
+        <LetterGrid letters={this.state.letters} animations={this.state.animations} />
         <FoundWords words={this.state.foundWords} />
       </div>
     </div>

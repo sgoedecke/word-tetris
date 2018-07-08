@@ -54,3 +54,7 @@ td {
   display: flex;
   margin-top: 10px;
 }
+
+.bomb {
+  background-color: #ffb1af;
+}

@@ -1,6 +1,7 @@
 import words from './words'
 
 const isAWord = (word) => {
+  return true 
   return words.indexOf(word.toLowerCase()) != -1 
 }
 
