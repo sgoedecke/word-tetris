@@ -20695,10 +20695,10 @@
 	  return _words2.default.indexOf(word.toLowerCase()) != -1;
 	};
 
-	var checkForWordsInSlice = function checkForWordsInSlice(letters, letterSlice) {
+	var checkForWordsInSlice = function checkForWordsInSlice(letters, letterSlice, wordLength) {
 	  for (var i = 0; i < letterSlice.length; i++) {
-	    var slice = letterSlice.slice(i, i + 3);
-	    if (slice.length < 3) {
+	    var slice = letterSlice.slice(i, i + wordLength);
+	    if (slice.length < wordLength) {
 	      continue;
 	    }
 	    var potentialWord = slice.map(function (l) {
@@ -20732,7 +20732,13 @@
 	  }).sort(function (a, b) {
 	    return a.x - b.x;
 	  });
-	  result = checkForWordsInSlice(letters, horizontalLetters);
+
+	  result = checkForWordsInSlice(letters, horizontalLetters, 4);
+	  if (result) {
+	    return result;
+	  }
+
+	  result = checkForWordsInSlice(letters, horizontalLetters, 3);
 	  if (result) {
 	    return result;
 	  }
@@ -20742,7 +20748,13 @@
 	  }).sort(function (a, b) {
 	    return a.y - b.y;
 	  });
-	  result = checkForWordsInSlice(letters, verticalLetters);
+
+	  result = checkForWordsInSlice(letters, horizontalLetters, 4);
+	  if (result) {
+	    return result;
+	  }
+
+	  result = checkForWordsInSlice(letters, verticalLetters, 3);
 	  if (result) {
 	    return result;
 	  }
