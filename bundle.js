@@ -20417,7 +20417,7 @@
 	  }, {
 	    key: 'randLetter',
 	    value: function randLetter() {
-	      var list = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
+	      var list = "ABCDEFGHIJKLMNPQRSTUVWXYZAEIOUE"; // list of all letters, biased towards vowels
 	      return list.charAt(this.randNumber(list.length));
 	    }
 	  }, {
@@ -20692,7 +20692,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var isAWord = function isAWord(word) {
-	  return true;
 	  return _words2.default.indexOf(word.toLowerCase()) != -1;
 	};
 

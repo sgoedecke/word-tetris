@@ -45,7 +45,7 @@ class WordTetris extends React.Component {
   }
 
   randLetter() {
-    const list = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
+    const list = "ABCDEFGHIJKLMNPQRSTUVWXYZAEIOUE"; // list of all letters, biased towards vowels
     return list.charAt(this.randNumber(list.length));
   }
 
