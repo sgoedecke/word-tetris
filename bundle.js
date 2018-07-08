@@ -20568,6 +20568,25 @@
 	          ),
 	          _react2.default.createElement(_LetterGrid2.default, { letters: this.state.letters, animations: this.state.animations }),
 	          _react2.default.createElement(_FoundWords2.default, { words: this.state.foundWords })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'Move the falling letter blocks with \u2B05\uFE0F  \u27A1\uFE0F  \u2B07\uFE0F '
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'When you make a word, you get a \uD83D\uDD25 which destroys other letter blocks'
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'If your blocks overflow the top, you lose!'
+	          )
 	        )
 	      );
 	    }

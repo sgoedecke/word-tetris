@@ -163,6 +163,11 @@ class WordTetris extends React.Component {
         <LetterGrid letters={this.state.letters} animations={this.state.animations} />
         <FoundWords words={this.state.foundWords} />
       </div>
+      <div>
+        <p>Move the falling letter blocks with ⬅️  ➡️  ⬇️ </p>
+        <p>When you make a word, you get a 🔥 which destroys other letter blocks</p>
+        <p>If your blocks overflow the top, you lose!</p>
+      </div>
     </div>
     )
   }
